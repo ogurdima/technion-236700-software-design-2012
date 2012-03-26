@@ -1065,7 +1065,6 @@ public class XMLWriter extends XMLFilterImpl implements LexicalHandler {
 			if (Character.isWhitespace(lastTextChar))
 				writer.write(PAD_TEXT);
 		}
-
 		return null;
 	}
 
