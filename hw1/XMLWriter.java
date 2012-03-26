@@ -1017,21 +1017,18 @@ public class XMLWriter extends XMLFilterImpl implements LexicalHandler {
 			preserve = isElementSpacePreserved(element);
 			trim = !preserve;
 		}
-
-		if (trim) {
-			// concatenate adjacent text nodes together
-			// so that whitespace trimming works properly
-			Text lastTextNode = null;
-			StringBuffer buff = null;
-			boolean textOnly = true;
-
-			for (int i = 0, size = element.nodeCount(); i < size; i++) {
-				Node node = element.node(i);
+		Text lastTextNode = null;
+		StringBuffer buff = null;
+		boolean textOnly = true;
+		Node lastNode = null;
+		for (int i = 0, size = element.nodeCount(); i < size; i++) {
+			Node node = element.node(i);
+			if (trim) {
 				if (node instanceof Text) {
-					if (lastTextNode == null) 
+					if (lastTextNode == null)
 						lastTextNode = (Text) node;
 					else {
-						if (buff == null) 
+						if (buff == null)
 							buff = new StringBuffer(lastTextNode.getText());
 						buff.append(((Text) node).getText());
 					}
@@ -1044,22 +1041,19 @@ public class XMLWriter extends XMLFilterImpl implements LexicalHandler {
 					writeNode(node);
 					textOnly = false;
 				}
-			}
-			if (lastTextNode != null)
-				ourFunc1(textOnly, buff, lastTextNode);
-		} else {
-			Node lastTextNode = null;
-			for (int i = 0, size = element.nodeCount(); i < size; i++) {
-				Node node = element.node(i);
+			} else {
 				if (node instanceof Text) {
 					writeNode(node);
-					lastTextNode = node;
+					lastNode = node;
 				} else {
-					lastTextNode = ourFunc4(lastTextNode, node);
+					lastNode = ourFunc4(lastNode, node);
 					writeNode(node);
 				}
 			}
 		}
+		if (lastTextNode != null && trim)
+			ourFunc1(textOnly, buff, lastTextNode);
+
 		preserve = oldPreserve;
 	}
 
@@ -1075,7 +1069,7 @@ public class XMLWriter extends XMLFilterImpl implements LexicalHandler {
 			if (Character.isWhitespace(lastTextChar))
 				writer.write(PAD_TEXT);
 		}
-		
+
 		return null;
 	}
 
@@ -1105,12 +1099,13 @@ public class XMLWriter extends XMLFilterImpl implements LexicalHandler {
 				writer.write(PAD_TEXT);
 		}
 	}
-	
-	private void ourFunc1(boolean textOnly, StringBuffer buff, Text lastTextNode) throws IOException {
+
+	private void ourFunc1(boolean textOnly, StringBuffer buff, Text lastTextNode)
+			throws IOException {
 		ourFunc2(lastTextNode, buff, textOnly);
 		buff = ourFunc3(lastTextNode, buff);
 	}
-	
+
 	protected void writeCDATA(String text) throws IOException {
 		writer.write("<![CDATA[");
 
