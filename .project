@@ -8,4 +8,11 @@
 	</buildSpec>
 	<natures>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>hw1/q2/src</name>
+			<type>2</type>
+			<location>C:/Stuff/code/workspace/WeddingSeats/src</location>
+		</link>
+	</linkedResources>
 </projectDescription>
