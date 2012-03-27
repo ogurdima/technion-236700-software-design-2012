@@ -1034,7 +1034,7 @@ public class XMLWriter extends XMLFilterImpl implements LexicalHandler {
 			buff = f1(trim, textOnly, lastNode, buff);
 			if (trim)
 				textOnly = false;
-			if (lastNode != null) 
+			if (lastNode != null)
 				f2(lastNode.getText().charAt(lastNode.getText().length() - 1));
 			lastNode = null;
 			writeNode(node);
@@ -1045,23 +1045,22 @@ public class XMLWriter extends XMLFilterImpl implements LexicalHandler {
 
 	private StringBuffer f1(boolean trim, boolean textOnly, Node lastNode,
 			StringBuffer buff) throws IOException {
-		if (trim) {
+		if (trim)
 			if (buff != null) {
-				if (!textOnly) {
+				if (!textOnly)
 					f2(buff.charAt(0));
-				}
+
 				if (lastNode != null) {
 					writeString(buff.toString());
 					return null;
 				}
-			} else {
-				if (lastNode != null) {
-					if (!textOnly)
-						f2(lastNode.getText().charAt(0));
-					writeString(lastNode.getText());
-				}
+
+			} else if (lastNode != null) {
+				if (!textOnly)
+					f2(lastNode.getText().charAt(0));
+				writeString(lastNode.getText());
 			}
-		}
+
 		return buff;
 	}
 
