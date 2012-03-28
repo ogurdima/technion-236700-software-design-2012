@@ -1010,8 +1010,8 @@ public class XMLWriter extends XMLFilterImpl implements LexicalHandler {
 	 *             DOCUMENT ME!
 	 */
 	protected void writeElementContent(Element element) throws IOException {
-		boolean trim = format.isTrimText(), oldPreserve = preserve, textOnly = true;
-		Node lastNode = null;
+		boolean trim = format.isTrimText(), oldPreserve = preserve, notTextOnly = false;
+		// Node lastNode = null;
 		StringBuffer buff = null;
 
 		if (trim) // verify we have to before more expensive test
@@ -1019,49 +1019,41 @@ public class XMLWriter extends XMLFilterImpl implements LexicalHandler {
 
 		for (int i = 0; i < element.nodeCount(); i++) {
 			Node node = element.node(i);
-			if (node instanceof Text) {
-				if (!trim)
-					writeNode(node);
-				else if (lastNode != null) {
-					if (buff == null)
-						buff = new StringBuffer(lastNode.getText());
-					buff.append(((Text) node).getText());
-					continue;
-				}
-				lastNode = node;
+			if (node instanceof Text && !trim) {
+				writeNode(node);
 				continue;
 			}
-			buff = f1(trim, textOnly, lastNode, buff);
+			if (trim && node instanceof Text) {
+				if (buff == null)
+					buff = new StringBuffer(node.getText());
+				else
+					buff.append(((Text) node).getText());
+				continue;
+			}
 			if (trim)
-				textOnly = false;
-			if (lastNode != null)
-				f2(lastNode.getText().charAt(lastNode.getText().length() - 1));
-			lastNode = null;
+				notTextOnly = true;
+
+			if (trim && buff != null && notTextOnly)
+				f2(buff.charAt(0));
+
+			if (trim && buff != null) {
+				writeString(buff.toString());
+				f2(buff.charAt(buff.length() - 1));
+				buff = null;
+			}
+			
 			writeNode(node);
 		}
-		f1(trim, textOnly, lastNode, buff);
+
+		if (trim && buff != null && notTextOnly)
+			f2(buff.charAt(0));
+
+		if (trim && buff != null) {
+			writeString(buff.toString());
+			f2(buff.charAt(buff.length() - 1));
+			buff = null;
+		}
 		preserve = oldPreserve;
-	}
-
-	private StringBuffer f1(boolean trim, boolean textOnly, Node lastNode,
-			StringBuffer buff) throws IOException {
-		if (trim)
-			if (buff != null) {
-				if (!textOnly)
-					f2(buff.charAt(0));
-
-				if (lastNode != null) {
-					writeString(buff.toString());
-					return null;
-				}
-
-			} else if (lastNode != null) {
-				if (!textOnly)
-					f2(lastNode.getText().charAt(0));
-				writeString(lastNode.getText());
-			}
-
-		return buff;
 	}
 
 	private void f2(char c) throws IOException {
