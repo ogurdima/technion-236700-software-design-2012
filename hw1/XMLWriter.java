@@ -1010,8 +1010,7 @@ public class XMLWriter extends XMLFilterImpl implements LexicalHandler {
 	 *             DOCUMENT ME!
 	 */
 	protected void writeElementContent(Element element) throws IOException {
-		boolean trim = format.isTrimText(), oldPreserve = preserve, notTextOnly = false;
-		// Node lastNode = null;
+		boolean trim = format.isTrimText(), oldPreserve = preserve;
 		StringBuffer buff = null;
 
 		if (trim) // verify we have to before more expensive test
@@ -1019,41 +1018,33 @@ public class XMLWriter extends XMLFilterImpl implements LexicalHandler {
 
 		for (int i = 0; i < element.nodeCount(); i++) {
 			Node node = element.node(i);
-			if (node instanceof Text && !trim) {
-				writeNode(node);
-				continue;
-			}
-			if (trim && node instanceof Text) {
+
+			if (trim  && (node instanceof Text)) {
 				if (buff == null)
 					buff = new StringBuffer(node.getText());
 				else
 					buff.append(((Text) node).getText());
 				continue;
 			}
-			if (trim)
-				notTextOnly = true;
-
-			if (trim && buff != null && notTextOnly)
-				f2(buff.charAt(0));
-
-			if (trim && buff != null) {
-				writeString(buff.toString());
-				f2(buff.charAt(buff.length() - 1));
-				buff = null;
-			}
 			
+			buff = f1(trim, buff);
 			writeNode(node);
+			
+
 		}
 
-		if (trim && buff != null && notTextOnly)
-			f2(buff.charAt(0));
+		buff = f1(trim, buff);
+		preserve = oldPreserve;
+	}
 
+	private StringBuffer f1(boolean trim, StringBuffer buff) throws IOException {
 		if (trim && buff != null) {
+			f2(buff.charAt(0));
 			writeString(buff.toString());
 			f2(buff.charAt(buff.length() - 1));
 			buff = null;
 		}
-		preserve = oldPreserve;
+		return buff;
 	}
 
 	private void f2(char c) throws IOException {
