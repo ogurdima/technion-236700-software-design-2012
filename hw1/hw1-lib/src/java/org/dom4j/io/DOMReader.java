@@ -7,7 +7,10 @@
 
 package org.dom4j.io;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.dom4j.Branch;
@@ -18,6 +21,8 @@ import org.dom4j.Namespace;
 import org.dom4j.QName;
 import org.dom4j.tree.NamespaceStack;
 import org.w3c.dom.Node;
+
+import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
 
 /**
  * <p>
@@ -90,16 +95,7 @@ public class DOMReader {
 	// Implementation methods
 
 	protected void readTree(Node node, Branch current) {
-		Element element = null;
-		Document document = null;
-		String nodeName = node.getNodeName();
-		String nodeValue = node.getNodeValue();
-		
-		if (current instanceof Element) {
-			element = (Element) current;
-		} else {
-			document = (Document) current;
-		}
+		String name = node.getNodeName(), value = node.getNodeValue();
 
 		switch (node.getNodeType()) {
 		case Node.ELEMENT_NODE:
@@ -107,50 +103,35 @@ public class DOMReader {
 			break;
 
 		case Node.PROCESSING_INSTRUCTION_NODE:
-
-			if (current instanceof Element) {
-				element.addProcessingInstruction(nodeName, nodeValue);
-				break;
-			}
-			document.addProcessingInstruction(nodeName, nodeValue);
-			break;
-
-		case Node.COMMENT_NODE:
-
-			if (current instanceof Element) {
-				element.addComment(nodeValue);
-				break;
-			}
-			document.addComment(nodeValue);
+			invokeMethod(current, "addProcessingInstruction", name, value);
 			break;
 
 		case Node.DOCUMENT_TYPE_NODE:
-
 			org.w3c.dom.DocumentType domDocType = (org.w3c.dom.DocumentType) node;
-			document.addDocType(domDocType.getName(), domDocType.getPublicId(),
+			invokeMethod(current, "addProcessingInstruction",
+					domDocType.getName(), domDocType.getPublicId(),
 					domDocType.getSystemId());
 			break;
 
 		case Node.TEXT_NODE:
-			element.addText(nodeValue);
-
+			invokeMethod(current, "addText", value);
 			break;
-
 		case Node.CDATA_SECTION_NODE:
-			element.addCDATA(nodeValue);
+			invokeMethod(current, "addCDATA", value);
+			break;
+		case Node.COMMENT_NODE:
+			invokeMethod(current, "addComment", value);
 			break;
 
 		case Node.ENTITY_REFERENCE_NODE:
-
-			// is there a better way to get the value of an entity?
 			Node firstChild = node.getFirstChild();
 			String nodeVal = "";
 			if (firstChild != null) {
 				nodeVal = firstChild.getNodeValue();
 			}
-			nodeValue = nodeVal;
+			value = nodeVal;
 		case Node.ENTITY_NODE:
-			element.addEntity(nodeName, nodeValue);
+			invokeMethod(current, "addEntity", name, value);
 			break;
 
 		default:
@@ -159,24 +140,33 @@ public class DOMReader {
 		}
 	}
 
-	protected void readElement(Node node, Branch current) {
-		int previouslyDeclaredNamespaces = namespaceStack.size();
+	private void invokeMethod(Branch current, String methodName, String... args) {
+		Class[] argTypes = new Class[args.length];
+		Arrays.fill(argTypes, String.class);
+		try {
+			current.getClass().getMethod(methodName, argTypes)
+					.invoke(current, args);
+		} catch (Exception e) {
 
+		}
+	}
+
+	protected void readElement(Node node, Branch current) {
+		int previouslyDeclaredNamespaces = namespaceStack.size(), i;
 		Element element = current.addElement(getQName(node));
 
 		org.w3c.dom.NamedNodeMap attributeList = node.getAttributes();
 
 		if (attributeList != null) {
-			for (int i = 0; i < attributeList.getLength(); i++) {
+			for (i = 0; i < attributeList.getLength(); i++) {
 				Node attribute = attributeList.item(i);
-				String name = attribute.getNodeName();
+				String name = attribute.getNodeName(), value = attribute
+						.getNodeValue();
 				if (!name.startsWith("xmlns")) {
-					element.addAttribute(getQName(attribute),
-							attribute.getNodeValue());
+					element.addAttribute(getQName(attribute), value);
 					continue;
 				}
-				element.add(namespaceStack.addNamespace(getPrefix(name),
-						attribute.getNodeValue()));
+				element.add(namespaceStack.addNamespace(getPrefix(name), value));
 			}
 
 		}
@@ -184,7 +174,7 @@ public class DOMReader {
 		// Recurse on child nodes
 		org.w3c.dom.NodeList children = node.getChildNodes();
 
-		for (int i = 0, size = children.getLength(); i < size; i++)
+		for (i = 0; i < children.getLength(); i++)
 			readTree(children.item(i), element);
 
 		// pop namespaces from the stack
