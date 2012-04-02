@@ -25,7 +25,6 @@ public class Table {
 	private Collection<Guest> guests;
 	
 	@Requires({	"_capacity > 0",
-		
 	})
 	public Table(int _id, int _capacity) {
 		this.id = _id;
@@ -41,6 +40,7 @@ public class Table {
 	/**
 	 * @return The guests seated at this table.
 	 */
+	@Ensures("result != null")
 	public Collection<Guest> getGuests() {
 		return guests;
 	}
@@ -62,6 +62,7 @@ public class Table {
 	 *            The wedding guest to be seated at this table.
 	 * @return <b>true</b> if operation succeeded, <b>false</b> otherwise.
 	 */
+	@Requires({	"g != null", "! guests.contains(g)" })
 	public boolean addGuest(Guest g) {
 		if (guests.size() == capacity) {
 			return false;

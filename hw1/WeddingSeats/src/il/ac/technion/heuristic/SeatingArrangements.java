@@ -16,7 +16,7 @@ import com.google.java.contract.Ensures;
 import com.google.java.contract.Invariant;
 import com.google.java.contract.Requires;
 
-@Invariant({ "tables != null", "guests != null" })
+@Invariant({ "tables != null", "guests != null", "groom != null", "bride != null" })
 public class SeatingArrangements {
 
 	private final Person groom, bride;
@@ -26,7 +26,12 @@ public class SeatingArrangements {
 
 	private final int tablesCapacity;
 	private final static String delim = System.getProperty("line.separator");
-
+	
+	@Requires({	"groom != null",
+				"bride != null",
+				"tablesCapacity > 0"
+	})
+	@Ensures("guests.contains(groom) && guests.contains(bride)")
 	public SeatingArrangements(Guest groom, Guest bride, int tablesCapacity) {
 		this.groom = groom;
 		this.bride = bride;
@@ -60,7 +65,7 @@ public class SeatingArrangements {
 	 * an existing table, if possible.
 	 */
 	@Requires("!guests.contains(g)")
-	@Ensures("guests.contains(old(g))")
+	@Ensures("guests.contains(g)")
 	public void addGuest(Guest g) {
 		guests.add(g);
 
@@ -79,6 +84,7 @@ public class SeatingArrangements {
 	/**
 	 * @return The guests seated at the wedding.
 	 */
+	@Ensures("result != null && result.size() >= 2")
 	public Collection<Guest> guests() {
 		return guests;
 	}
