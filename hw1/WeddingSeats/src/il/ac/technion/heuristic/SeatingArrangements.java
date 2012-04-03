@@ -29,6 +29,7 @@ public class SeatingArrangements {
 	
 	@Requires({	"groom != null",
 				"bride != null",
+				"groom != bride",
 				"tablesCapacity > 0"
 	})
 	@Ensures("guests.contains(groom) && guests.contains(bride)")

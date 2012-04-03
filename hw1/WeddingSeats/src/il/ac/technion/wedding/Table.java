@@ -86,14 +86,13 @@ public class Table {
 	 *            The source Table from which <code>g</code> will be moved.
 	 * @return <b>true</b> if operation succeeded, <b>false</b> otherwise.
 	 */
-	@Ensures("!t.guests.contains(g) || guests.contains(g)")
+	//@Ensures("t.guests.contains(g) || guests.contains(g)")
 	@Requires({	"g != null",
-				"t != null"
+				"t != null",
+				"t != this",
 	})
 	public boolean moveFrom(Guest g, Table t) {
-		if (t == this) 
-				return true;
-		if (!t.guests.contains(g)) {
+		if (!t.guests.contains(g) || capacity == guests.size()) {
 			return false;
 		}
 		t.guests.remove(g);
