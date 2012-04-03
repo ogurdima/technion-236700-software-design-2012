@@ -89,4 +89,8 @@ public class SeatingArrangements {
 	public Collection<Guest> guests() {
 		return guests;
 	}
+	
+	public Collection<Table> tables() {
+		return tables; 
+	}
 }
