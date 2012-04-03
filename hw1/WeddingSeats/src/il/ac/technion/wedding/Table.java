@@ -42,7 +42,7 @@ public class Table {
 	 */
 	@Ensures("result != null")
 	public Collection<Guest> getGuests() {
-		return guests;
+		return new ArrayList<Guest>(guests);
 	}
 
 	/**
@@ -67,10 +67,9 @@ public class Table {
 		if (guests.size() == capacity) {
 			return false;
 		}
-		for (Person p : g.getDislikes()) {
-			if (guests.contains(p)) {
+		for(Guest guestOnTable: guests) {
+			if(guestOnTable.getDislikes().contains(g) || g.getDislikes().contains(guestOnTable))
 				return false;
-			}
 		}
 		return guests.add(g);
 	}
@@ -92,10 +91,10 @@ public class Table {
 				"t != this",
 	})
 	public boolean moveFrom(Guest g, Table t) {
-		if (!t.guests.contains(g) || capacity == guests.size()) {
-			return false;
+		if (addGuest(g)) {
+			t.guests.remove(g);
+			return true;
 		}
-		t.guests.remove(g);
-		return addGuest(g);
-	}
+		return false;
+		}
 }

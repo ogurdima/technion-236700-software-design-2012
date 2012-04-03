@@ -31,14 +31,16 @@ public class Guest extends Person {
 	/**
 	 * Marks <code>p</code> as disliked by this guest.
 	 */
-	@Ensures({ "dislikes.contains(p)",
-			"dislikes.size() == old(dislikes.size()) + 1" })
-	@Requires({ "p != null",
-				"p != (Person) this",
-				"!dislikes.contains(p)" })
+
+	@Requires({ "p != null", 
+				"p != (Person) this", 
+				"!dislikes.contains(p)" 
+				})
+	@Ensures({ 	"dislikes.contains(p)",
+				"dislikes.size() == old(dislikes.size()) + 1" 
+		})
 	public void dislike(Person p) {
 		dislikes.add(p);
-
 	}
 
 	/**
