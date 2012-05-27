@@ -12,7 +12,7 @@ import technion.gc.api.CrawlNode;
 
 public class WebNode implements CrawlNode {
 	private static Logger log = Logger.getLogger(WebNode.class);
-	private String url;
+	public final String url;
 
 	public WebNode(String _url) {
 		url = _url;
@@ -44,8 +44,10 @@ public class WebNode implements CrawlNode {
 		Elements links = doc.select("a[href]");
 
 		for (Element link : links) {
-			log.info("Node address: " + cleanUrl(link.absUrl("href")));
-			neighbors.add(new WebNode(cleanUrl(link.absUrl("href"))));
+			if (linkIsParsable(link)) {
+				log.info("Node address: " + cleanUrl(link.absUrl("href")));
+				neighbors.add(new WebNode(cleanUrl(link.absUrl("href"))));
+			}
 		}
 		return neighbors;
 	}
@@ -55,6 +57,19 @@ public class WebNode implements CrawlNode {
 		if (url.endsWith("/")) // Remove last "/"
 			return url.substring(0, url.length() - 1);
 		return url;
+	}
+	
+	private static boolean linkIsParsable(Element link) {
+		if (null == link)
+			return false;
+		String url = cleanUrl(link.absUrl("href"));
+		try {
+			Jsoup.connect(url).get();
+			return true;
+		} catch (Exception e) {
+			log.error("URL " + url + " cannot be parsed, skipping");
+			return false;
+		}
 	}
 
 	@Override

@@ -1,11 +1,9 @@
 package technion.gc.web;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
-import java.util.Set;
 
 import technion.gc.api.CrawlStrategy;
 
@@ -15,7 +13,7 @@ public class WebStrategy implements CrawlStrategy<WebNode> {
 	
 	public WebStrategy(int _maxDepth) {
 		if (_maxDepth < 0)
-			maxDepth = 0;
+			maxDepth = 1;
 		else
 			maxDepth = _maxDepth;
 	}
