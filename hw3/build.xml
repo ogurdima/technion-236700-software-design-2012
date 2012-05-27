@@ -1,0 +1,88 @@
+<project name="crawler" default="all" basedir=".">
+	
+	<!-- Configuration -->
+	
+	<description>326814910 326814902</description>
+	<!-- Change these properties to suit your project -->
+
+	<!-- Main source folder, relative to the base dir -->
+	<property name="src" location="src" />
+	<!-- Test source folder, relative to the base dir -->
+	<property name="tst" location="test" />
+	<!-- lib folder, relative to the base dir -->
+	<property name="lib" location="lib" />
+	<!-- bin folder, relative to the base dir -->
+	<property name="build" location="bin" />
+	<!-- Verbose mode -->
+	<property name="TALK" value="true" />
+	
+	<target name="init" description="creating the folders needed">
+		<mkdir dir="${build}" />
+	</target>
+	
+	<target name="compile" depends="init" description="compile the source code ">
+		<javac srcdir="${src}:${tst}" destdir="${build}" includeantruntime="true">
+			<classpath>
+				<fileset dir="${lib}">
+					<!-- You will need to add junit.jar & other external jars under this folder -->
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+		</javac>
+	</target>
+	
+	<target name="clean" description="clean up">
+		<delete dir="${build}" />
+	</target>
+	
+	<!-- Crawl -->
+	
+	<target name="crawl" depends="compile">
+		<!-- Change this classname value to suit your search forum main class -->
+		<java classname="technion.gc.web.WebCrawler" classpath="bin" fork="true">
+			<arg id="seed" value="http://webcourse.cs.technion.ac.il/236700" />
+			<arg id="k" value="2" />
+			<classpath>
+				<fileset dir="${lib}">
+					<!-- You will need to add junit.jar & other external jars under this folder -->
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+		</java>
+	</target>
+	
+	<target name="crawlDomain" depends="compile">
+		<!-- Change this classname value to suit your search forum main class -->
+		<java classname="technion.gc.web.WebCrawler" classpath="bin" fork="true">
+			<arg id="seed" value="http://webcourse.cs.technion.ac.il/236700" />
+			<arg id="k" value="2" />
+			<arg id="domain" value="http://webcourse.cs.technion.ac.il" />
+			<classpath>
+				<fileset dir="${lib}">
+					<!-- You will need to add junit.jar & other external jars under this folder -->
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+		</java>
+	</target>
+	
+	<target name="allTests" depends="compile" description="run your test suite">
+		<junit printsummary="yes" haltonfailure="no" showoutput="yes">
+			<classpath>
+				<pathelement path="${build}" />
+				<fileset dir="${lib}">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+			<batchtest fork="yes">
+				<formatter type="brief" usefile="false" />
+				<fileset dir="${tst}">
+					<include name="**/*Test*.java" />
+					<!-- test entry for every test suite / test case you want to run -->
+				</fileset>
+			</batchtest>
+		</junit>
+	</target>
+	
+	<target name="all" depends="clean, allTests, crawl, crawlDomain" />
+</project>

@@ -19,5 +19,4 @@ public class WebDomainStrategy extends WebStrategy {
 	private boolean isFromDomain(WebNode nd) {
 		return nd.url.startsWith(domain);
 	}
-
 }

@@ -22,7 +22,7 @@ public class WebNode implements CrawlNode {
 	public List<WebNode> getNeighbors() {
 		Document doc = null;
 		List<WebNode> neighbors = new LinkedList<WebNode>();
-		int counter = 3;
+		int counter = 2;
 		do {
 			try {
 				doc = Jsoup.connect(url).get();
@@ -32,7 +32,7 @@ public class WebNode implements CrawlNode {
 					log.debug(url + " is a link to a non-html file or char set of the given web page is not supported");
 					return neighbors;
 				}
-				log.warn(e.getMessage() + ". Trying " + --counter
+				log.debug(e.getMessage() + ". Trying " + --counter
 						+ " more times");
 				if (counter <= 0) {
 					log.error("Could not fetch " + url);
@@ -42,10 +42,9 @@ public class WebNode implements CrawlNode {
 		} while (counter > 0);
 
 		Elements links = doc.select("a[href]");
-
 		for (Element link : links) {
-			if (linkIsParsable(link)) {
-				log.info("Node address: " + cleanUrl(link.absUrl("href")));
+			if (true) {
+				log.debug("Node address: " + cleanUrl(link.absUrl("href")));
 				neighbors.add(new WebNode(cleanUrl(link.absUrl("href"))));
 			}
 		}
@@ -59,10 +58,9 @@ public class WebNode implements CrawlNode {
 		return url;
 	}
 	
-	private static boolean linkIsParsable(Element link) {
-		if (null == link)
+	public boolean linkIsParsable() {
+		if (null == url)
 			return false;
-		String url = cleanUrl(link.absUrl("href"));
 		try {
 			Jsoup.connect(url).get();
 			return true;
@@ -75,6 +73,10 @@ public class WebNode implements CrawlNode {
 	@Override
 	public String toString() {
 		return cleanUrl(url);
+	}
+	
+	public void log() {
+		log.info("Node address: " + cleanUrl(url));
 	}
 	
 	@Override
