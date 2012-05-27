@@ -1,5 +1,5 @@
 package technion.gc.api;
 
-public interface CrawlAction {
-	void invoke(CrawlNode nd);
+public interface CrawlAction<T extends CrawlNode> {
+	void invoke(T node);
 }

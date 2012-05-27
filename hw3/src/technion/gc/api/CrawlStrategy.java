@@ -1,5 +1,5 @@
 package technion.gc.api;
 
-public interface CrawlStrategy {
-	CrawlNode nextNode(CrawlNode nd);
+public interface CrawlStrategy<T extends CrawlNode> {
+	T nextNode(T nd);
 }
