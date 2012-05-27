@@ -1,27 +1,44 @@
 package technion.gc.web;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
 import technion.gc.api.CrawlStrategy;
 
 public class WebStrategy implements CrawlStrategy<WebNode> {
+	
+	public final int maxDepth;
+	
+	public WebStrategy(int _maxDepth) {
+		if (_maxDepth < 0)
+			maxDepth = 0;
+		else
+			maxDepth = _maxDepth;
+	}
+	
 	Queue<WebNode> q = new LinkedList<WebNode>();
-	Set<WebNode> visited = new HashSet<WebNode>();
+	Map<WebNode, Integer> depth = new HashMap<WebNode, Integer>();
 
 	@Override
 	public WebNode nextNode(WebNode nd) {
-		visited.add( nd);
+		if (! depth.containsKey(nd)) //root
+			depth.put(nd, 1);
+		if (depth.get(nd) >= maxDepth)
+			return q.poll();
 		if (null != nd.getNeighbors()) {
 			for (WebNode n : nd.getNeighbors()) {
-				q.add(n);
+				if (! depth.containsKey(n))
+				{
+					depth.put(n, depth.get(nd)+1);
+					q.add(n);
+				}
 			}
 		}
-		WebNode next = null;
-		while ((next = q.poll()) != null && visited.contains(next))
-			;
-		return next;
+		
+		return q.poll();
 	}
 }

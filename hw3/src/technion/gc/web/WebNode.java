@@ -1,16 +1,14 @@
 package technion.gc.web;
 
-import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-
 import technion.gc.api.CrawlNode;
+
 
 public class WebNode implements CrawlNode {
 	private static Logger log = Logger.getLogger(WebNode.class);
@@ -29,9 +27,9 @@ public class WebNode implements CrawlNode {
 			try {
 				doc = Jsoup.connect(url).get();
 				break;
-			} catch (IOException e) {
+			} catch (Exception e) {
 				if (e.getMessage().startsWith("Unhandled content type")) {
-					log.debug(url + " is a link to a non-html file");
+					log.debug(url + " is a link to a non-html file or char set of the given web page is not supported");
 					return neighbors;
 				}
 				log.warn(e.getMessage() + ". Trying " + --counter
@@ -63,4 +61,23 @@ public class WebNode implements CrawlNode {
 	public String toString() {
 		return cleanUrl(url);
 	}
+	
+	@Override
+	public int hashCode() {
+		if (null == url)
+			return 0;
+		return url.hashCode();
+	}
+	
+	@Override
+	public boolean equals(Object other) {
+		if (null == other)
+			return false;
+		if (other.getClass() != this.getClass())
+			return false;
+		if ( url.equals(( (WebNode)other ).url ))
+			return true;
+		return false;
+	}
+
 }
