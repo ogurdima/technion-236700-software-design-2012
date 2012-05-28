@@ -25,7 +25,10 @@ public class WebCrawler {
 		
 		if (args.length == 2) {
 			try {
-				strategy = new WebStrategy(Integer.parseInt(args[1]));
+				int maxDepth = Integer.parseInt(args[1]);
+				if (maxDepth < 1)
+					throw new NumberFormatException();
+				strategy = new WebStrategy(maxDepth);
 			}
 			catch (NumberFormatException e){
 				log.fatal("Second argument must be a positive integer");
@@ -36,7 +39,10 @@ public class WebCrawler {
 		}
 		else if (args.length == 3) {
 			try {
-				strategy = new WebDomainStrategy(Integer.parseInt(args[1]), args[2]);
+				int maxDepth = Integer.parseInt(args[1]);
+				if (maxDepth < 1)
+					throw new NumberFormatException();
+				strategy = new WebDomainStrategy(maxDepth, args[2]);
 			}
 			catch (NumberFormatException e){
 				log.fatal("Second argument must be a positive integer");

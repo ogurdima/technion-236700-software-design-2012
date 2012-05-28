@@ -22,7 +22,7 @@ public class WebNode implements CrawlNode {
 	public List<WebNode> getNeighbors() {
 		Document doc = null;
 		List<WebNode> neighbors = new LinkedList<WebNode>();
-		int counter = 2;
+		int counter = 3;
 		do {
 			try {
 				doc = Jsoup.connect(url).get();

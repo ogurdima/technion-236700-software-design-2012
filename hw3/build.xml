@@ -1,4 +1,4 @@
-<project name="crawler" default="all" basedir=".">
+<project name="WebCrawler" default="all" basedir=".">
 	
 	<!-- Configuration -->
 	
@@ -13,11 +13,16 @@
 	<property name="lib" location="lib" />
 	<!-- bin folder, relative to the base dir -->
 	<property name="build" location="bin" />
+	<!-- resources folder, relative to the base dir -->
+	<property name="res" location="resources" />
 	<!-- Verbose mode -->
 	<property name="TALK" value="true" />
 	
 	<target name="init" description="creating the folders needed">
 		<mkdir dir="${build}" />
+		<copy todir="${build}">
+			<fileset dir="${res}" excludes="**/*.java"/>
+		</copy>
 	</target>
 	
 	<target name="compile" depends="init" description="compile the source code ">
@@ -25,7 +30,9 @@
 			<classpath>
 				<fileset dir="${lib}">
 					<!-- You will need to add junit.jar & other external jars under this folder -->
-					<include name="**/*.jar" />
+					<include name="junit.jar"/>
+					<include name="log4j-1.2.16.jar"/>
+					<include name="jsoup-1.6.2.jar"/>
 				</fileset>
 			</classpath>
 		</javac>
@@ -45,7 +52,12 @@
 			<classpath>
 				<fileset dir="${lib}">
 					<!-- You will need to add junit.jar & other external jars under this folder -->
-					<include name="**/*.jar" />
+					<include name="junit.jar"/>
+					<include name="log4j-1.2.16.jar"/>
+					<include name="jsoup-1.6.2.jar"/>
+				</fileset>
+				<fileset dir="${res}">
+					
 				</fileset>
 			</classpath>
 		</java>
@@ -60,7 +72,9 @@
 			<classpath>
 				<fileset dir="${lib}">
 					<!-- You will need to add junit.jar & other external jars under this folder -->
-					<include name="**/*.jar" />
+					<include name="junit.jar"/>
+					<include name="log4j-1.2.16.jar"/>
+					<include name="jsoup-1.6.2.jar"/>
 				</fileset>
 			</classpath>
 		</java>
