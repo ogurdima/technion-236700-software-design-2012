@@ -1,21 +1,31 @@
 package technion.gc.api;
 
 import static org.junit.Assert.*;
-
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
-import java.util.Set;
-import java.util.Stack;
-
 import org.junit.Test;
+import technion.gc.simpleImplementation.*;
 
 public class GraphCrawlerTest {
 
 	@Test
 	public void testNullRoot() {
+		GraphCrawler<TestCNode> gc = new GraphCrawler<TestCNode>();
+		gc.crawl(null, new TestCAction(), new TestC_BfsStrategy());
+	}
 
+	@Test
+	public void testNullAction() {
+		GraphCrawler<TestCNode> gc = new GraphCrawler<TestCNode>();
+		gc.crawl(new TestCNode(1, new LinkedList<TestCNode>()), null,
+				new TestC_BfsStrategy());
+	}
+
+	@Test
+	public void testNullStrategy() {
+		GraphCrawler<TestCNode> gc = new GraphCrawler<TestCNode>();
+		gc.crawl(new TestCNode(1, new LinkedList<TestCNode>()),
+				new TestCAction(), null);
 	}
 
 	@Test
@@ -87,95 +97,4 @@ public class GraphCrawlerTest {
 		crawler.crawl(n3, action, new TestC_BfsStrategy());
 		assertEquals("312", action.buff.toString());
 	}
-}
-
-class TestCNode implements CrawlNode {
-	public int id;
-	protected List<TestCNode> neighbors = null;
-
-	public TestCNode(int _id, List<TestCNode> _neighbors) {
-		id = _id;
-		neighbors = _neighbors;
-	}
-
-	@Override
-	public List<TestCNode> getNeighbors() {
-		return neighbors;
-	}
-
-	public void setNeighbors(List<TestCNode> nn) {
-		neighbors = nn;
-	}
-
-	@Override
-	public boolean equals(Object other) {
-		if (other.getClass() != this.getClass())
-			return false;
-		if (id == ((TestCNode) other).id)
-			return true;
-		return false;
-	}
-
-	@Override
-	public int hashCode() {
-		return id;
-	}
-
-}
-
-/*
- * Returns all neighbors one by one
- */
-class TestC_BfsStrategy implements CrawlStrategy<TestCNode> {
-
-	Queue<TestCNode> q = new LinkedList<TestCNode>();
-	Set<TestCNode> visited = new HashSet<TestCNode>();
-
-	@Override
-	public TestCNode nextNode(TestCNode nd) {
-		visited.add((TestCNode) nd);
-		if (null != nd.getNeighbors()) {
-			for (TestCNode n : nd.getNeighbors()) {
-				q.add(((TestCNode) n));
-			}
-		}
-		TestCNode next = null;
-		while ((next = q.poll()) != null && visited.contains(next))
-			;
-		return next;
-	}
-}
-
-class TestC_DfsStrategy implements CrawlStrategy<TestCNode> {
-
-	Stack<TestCNode> q = new Stack<TestCNode>();
-	Set<TestCNode> visited = new HashSet<TestCNode>();
-
-	@Override
-	public TestCNode nextNode(TestCNode nd) {
-
-		visited.add((TestCNode) nd);
-		if (null != nd.getNeighbors()) {
-			for (TestCNode n : nd.getNeighbors()) {
-				q.push(((TestCNode) n));
-			}
-		}
-		TestCNode next = null;
-		while (!q.empty() && (next = q.pop()) != null && visited.contains(next)) {
-			next = null;
-		}
-
-		return next;
-	}
-}
-
-class TestCAction implements CrawlAction<TestCNode> {
-
-	public StringBuilder buff = new StringBuilder();
-
-	@Override
-	public void invoke(TestCNode nd) {
-		buff.append(nd.id);
-	}
-
 }
